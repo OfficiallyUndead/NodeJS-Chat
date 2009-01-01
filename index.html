@@ -22,6 +22,14 @@
     <form action="">
       <input id="m" autocomplete="off" /><button>Send</button>
     </form>
+
+
+    $(function() {
+    $(".help-slider").flexslider({touch:!0,animationLoop:!1,slideshow:!1,animation:"slide",direction:"horizontal",controlNav:!0,directionNav:!1,animationSpeed:600,useCSS:!0,video:!1});
+    });
+
+
+
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script src="/socket.io/socket.io.js"></script>

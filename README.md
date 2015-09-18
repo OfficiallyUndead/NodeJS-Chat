@@ -7,6 +7,7 @@ This is a very basic Node JS / Socket.io chat application. It has very basic fun
 To use this application follow the instructions below:
  - Download + Install Node JS
  - Download the zip file + unzip it to a location of your choice (make a note of the location)
+ - You need to edit the index.js to reflect the location of the index.html. This has to be the full path to the file; example: /home/yourusername/nodechat/index.html
  - Go to the location & run the command `node index.js` (without quotations). You should see a message in the console saying `listening on *:3000`
  - Now browse to localhost:3000, when prompted type a username (This is to identify a user who sent the message)
  - Click in the message field & type a message. Once done click save. This should then send the message & it should appear in the chat area under the name field

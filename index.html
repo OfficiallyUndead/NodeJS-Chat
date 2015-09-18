@@ -1,3 +1,4 @@
+
 <!doctype html> <html>
   <head>
     <title>Socket.IO chat</title>
@@ -7,43 +8,68 @@
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body { font: 13px Helvetica, Arial; }
       form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0;overflow-x:none;overflow-y:scroll; }
       #messages li { padding: 5px 10px; }
       #messages li:nth-child(odd) { background: #eee; }
     </style>
   </head>
   <body>
-    <div class="block"><input type="text" class="form-control" disabled name="name" placeholder="Your Name"/></div>
-    <ul id="messages" style="height:500px;overflow:scroll;"></ul>
-    <form action="" class="form-inline">
-      <div class="row">
-        <div class="col-sm-12">
-          <div class="input-group">
-            <input id="m" type="text" class="form-control" placeholder="Type a message...">
-            <span class="input-group-btn">
-              <button class="btn btn-default" type="submit">Send!</button>
-            </span>
-          </div><!-- /input-group -->
-        </div><!-- /.col-lg-6 -->
-      </div>
+    <input type="hidden" class="form-control" disabled name="name" placeholder="Your Name"/>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
     </form>
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-      $(document).ready(function(){
-        var username = prompt('Please enter a username');
-        $("input[name='name']").val(username);
-      });
       var socket = io();
+      $(document).ready(function(){
+        /* 
+        When the document loads we want to prompt the user for their username.
+        Upon submission we submit this, where it is checked to see if it exists in users table.
+        If it exists then we set user to online, and return a history of chat messages.
+        Otherwise we insert the user setting the status as online and again return history of chat messages
+        */
+        $("#messages").height($("body").height()-40);
+	      var username = prompt('Please enter a username');
+        $("input[name='name']").val(username);
+      	socket.emit('user connect',username);
+      });
+      /* When we are told user has connected; We here process the messages that have been returned from the database (history) */
+      socket.on('user connected', function(rows){
+      	$(rows).each(function(i,v){
+          if(v.name == $("input[name='name']").val())
+         	  $('#messages').append("<li><strong>You</strong>:" +v.message+ "</li>");
+      	  else
+      	    $('#messages').append($('<li>').text(v.name + ":" +v.message));
+      	});
+        doFocus(); //This is meant for making the chat list auto scroll - this seems not to be working
+      });
+      /* Here we submit the message to the socket server for processing */
       $('form').submit(function(){
         socket.emit('chat message', $("input[name='name']").val(),$('#m').val());
         $('#m').val('');
         return false;
       });
+      /* Here we process new chat messages & show them in the chat window */
       socket.on('chat message', function(user,msg){
-        $('#messages').append($('<li>').text(user + ":" +msg)).focus();
+	      if(user == $("input[name='name']").val())
+	        $('#messages').append("<li><strong>You</strong>:" +msg+ "</li>");
+        else
+          $('#messages').append($('<li>').text(user + ":" +msg));
+      	doFocus();
       });
+      
+      /* fuction for scrolling / resize chat windows - not working */
+      function doFocus()
+      {
+        console.log('focus');
+	      window.scrollTo(0,document.body.scrollHeight);
+	      $("#messages").height($(window).height()-40);
+      }
     </script>
   </body>
 </html>

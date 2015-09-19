@@ -1,9 +1,10 @@
 {
-  "name": "socket-chat-example",
-  "version": "0.0.1",
-  "description": "my first socket.io app",
+  "name": "NodeJS-Chat",
+  "version": "0.0.3",
+  "description": "NodeJS + Socket.io based chat application",
   "dependencies": {
     "express": "^4.10.2",
-    "socket.io": "^1.3.6"
+    "socket.io": "^1.3.6",
+    "mysql": "^2.0.0"
   }
 }

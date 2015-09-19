@@ -10,14 +10,15 @@
       form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
       form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
       form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0;overflow-x:none;overflow-y:scroll; }
-      #messages li { padding: 5px 10px; }
+      #users { list-style-type: none; margin: 0; padding: 0;width:15%;float:right; }
+      #messages { list-style-type: none; margin: 0; padding: 0;overflow-x:none;overflow-y:scroll;width:85%;float:left; }
+      #messages li,#users li { padding: 5px 10px;width:100%; }
       #messages li:nth-child(odd) { background: #eee; }
     </style>
   </head>
   <body>
     <input type="hidden" class="form-control" disabled name="name" placeholder="Your Name"/>
-    <ul id="messages"></ul>
+    <div><ul id="messages"></ul><ul id="users"><li>Users Online</li></ul></div>
     <form action="">
       <input id="m" autocomplete="off" /><button>Send</button>
     </form>
@@ -39,14 +40,20 @@
       	socket.emit('user connect',username);
       });
       /* When we are told user has connected; We here process the messages that have been returned from the database (history) */
-      socket.on('user connected', function(rows){
-      	$(rows).each(function(i,v){
+      socket.on('user connected', function(messages,users){
+      	$(messages).each(function(i,v){
           if(v.name == $("input[name='name']").val())
-         	  $('#messages').append("<li><strong>You</strong>:" +v.message+ "</li>");
+         	  $('#messages').prepend("<li><strong>You</strong>:" +v.message+ "</li>");
       	  else
-      	    $('#messages').append($('<li>').text(v.name + ":" +v.message));
+      	    $('#messages').prepend($('<li>').text(v.name + ":" +v.message));
+      	});
+      	$(users).each(function(i,v){
+          $('#users').append("<li id='"+v.name+"'>" +v.name+ "</li>");
       	});
         doFocus(); //This is meant for making the chat list auto scroll - this seems not to be working
+      });
+      socket.on('another user connected', function(newuser){
+        $('#users').append("<li id='"+newuser+"'>" +newuser+ "</li>");
       });
       /* Here we submit the message to the socket server for processing */
       $('form').submit(function(){
@@ -57,10 +64,17 @@
       /* Here we process new chat messages & show them in the chat window */
       socket.on('chat message', function(user,msg){
 	      if(user == $("input[name='name']").val())
-	        $('#messages').append("<li><strong>You</strong>:" +msg+ "</li>");
+	        $('#messages').prepend("<li><strong>You</strong>:" +msg+ "</li>");
         else
-          $('#messages').append($('<li>').text(user + ":" +msg));
+          $('#messages').prepend($('<li>').text(user + ":" +msg));
       	doFocus();
+      });
+      
+      socket.on('user disconnected', function(user){
+        $('#messages').prepend('<li>' + user + ' disconnected from the chat</li>');
+        var audio = new Audio('http://soundbible.com/mp3/Blop-Mark_DiAngelo-79054334.mp3');
+		audio.play();
+		$('#users#'+user).remove();
       });
       
       /* fuction for scrolling / resize chat windows - not working */
@@ -69,6 +83,8 @@
         console.log('focus');
 	      window.scrollTo(0,document.body.scrollHeight);
 	      $("#messages").height($(window).height()-40);
+	      var audio = new Audio('http://soundbible.com/mp3/Blop-Mark_DiAngelo-79054334.mp3');
+		  audio.play();
       }
     </script>
   </body>

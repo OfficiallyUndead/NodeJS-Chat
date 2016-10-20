@@ -6,7 +6,7 @@ var mysql      = require('mysql');
 var connection = mysql.createConnection({
   host     : 'localhost', //MySQL Hostname
   user     : 'root', //MySQL Username
-  password : 'password', //MySQL Password
+  password : '2Febuary2011', //MySQL Password
   database : 'chat' //MySQL Database
 });
 
@@ -87,10 +87,12 @@ io.on('connection', function(socket){
   */
   socket.on('disconnect', function (){
     connection.query('UPDATE users SET online = 0 WHERE name = ?', [global.user], function(err, rows, fields){
-	  if(err)
-	    console.log(err);
-	  else
-	    io.emit('user disconnected', global.user);
+	  if(err) {
+          console.log(err);
+      } else {
+        console.log('A user disconnected');
+        io.emit('user disconnected', global.user);
+      }
     });
   });
 });
